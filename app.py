@@ -7,6 +7,7 @@ import argparse
 import sys
 import time
 import signal
+import subprocess
 
 def signal_handler(signal, frame):
         print('Bye!')
@@ -24,9 +25,22 @@ def main(session):
         # Don't forget to disconnect the signal at the end
         signalID = 0
 
+        app = None;
+
         def callback(event):
-            execfile("/home/nao/projects/" + event + "/app.py")
-            tabletService.onJSEvent.disconnect(signalID)
+            global app
+            print "event"
+            if event == "app-launcher":
+                print "app-launcher"
+                if app is not None and app.returncode is None:
+                    app.terminate()
+                    app.wait()
+                    print "Showing webview"
+                    tabletService.loadApplication("project_launcher")
+                    tabletService.showWebview()
+            else:
+                print "Launching ", event
+                app = subprocess.Popen("/home/nao/projects/" + event + "/app.py")
 
 
         # attach the callback function to onJSEvent signal
