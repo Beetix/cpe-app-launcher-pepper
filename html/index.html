@@ -58,24 +58,24 @@
 				border: 1px solid rgba(127,255,255,0.75);
 			}
 
-				.element .details {
-					position: absolute;
-					top: 20px;
-					right: 20px;
-					font-size: 12px;
-					color: rgba(127,255,255,0.75);
-				}
+			.element img {
+				color: rgba(127,255,255,0.75);
+				position: absolute;
+				top: 120px;
+                left: 0; right: 0;
+                margin: auto;
+			}
 
-				.element .title {
-					position: absolute;
-					top: 40px;
-					left: 0px;
-					right: 0px;
-					font-size: 60px;
-					font-weight: bold;
-					color: rgba(255,255,255,0.75);
-					text-shadow: 0 0 10px rgba(0,255,255,0.95);
-				}
+			.element .title {
+				position: absolute;
+				top: 40px;
+				left: 0px;
+				right: 0px;
+				font-size: 60px;
+				font-weight: bold;
+				color: rgba(255,255,255,0.75);
+				text-shadow: 0 0 10px rgba(0,255,255,0.95);
+			}
 
 
 			button {
@@ -117,24 +117,26 @@
 		<script>
 
 			var table = [
-				"Tableau Périodique", "periodic_table",
-				"News", "periodic_table",
-				"Plan bâtiments", "periodic_table",
-				"Instagram", "projet_insta",
-				"Time's up", "periodic_table",
-				"Barista", "periodic_table",
-				"", "periodic_table",
-				"", "periodic_table",
-                "", "periodic_table",
-				"", "periodic_table",
-				"", "periodic_table",
-				"", "periodic_table",
-				"", "periodic_table",
-				"", "periodic_table",
-				"", "periodic_table",
-				"", "periodic_table"
+				"Tableau Périodique", "periodic_table", "webonly",
+				"News", "news", "",
+				"Plans bâtiments", "cpe_map", "webonly",
+				"Instagram", "projet_insta", "",
+				"Time's up", "times_up", "",
+				"Barista", "barista", "",
+				"À venir...", "", "",
+				"", "", "",
+                "", "", "",
+				"", "", "",
+				"", "", "",
+				"", "", "",
+				"", "", "",
+				"", "", "",
+				"", "", "",
+				"", "", ""
 
 			];
+
+            var nb_infos = 3;
 
 			var camera, scene, renderer;
 			var controls;
@@ -164,7 +166,7 @@
 
 				// table
 
-				for ( var i = 0; i < table.length; i += 2 ) {
+				for ( var i = 0; i < table.length; i += nb_infos ) {
 
 					var element = document.createElement( 'div' );
 					element.className = 'element';
@@ -174,20 +176,41 @@
                             node = node.parentNode;
                         }
                         var projectName = node.childNodes[0].innerHTML;
-                        for ( var j = 0; j < table.length; j += 2 ) {
+                        for ( var j = 0; j < table.length; j += nb_infos ) {
                             if ( table[ j ] === projectName ) {
                                 break;
                             }
                         }
-                        say(projectName); 
-                        ALTabletBinding.raiseEvent(table[ j + 1 ]);
+                        if (projectName !== "" && table[ j + 1 ] !== "") {
+                            say(projectName);
+                            RobotUtils.onServices(function(CPEAppLauncher) {
+                                if (table[ j + 2 ] === "webonly") {
+                                    CPEAppLauncher.launchWebApp(table[ j + 1 ]);
+                                }
+                                else {
+                                    CPEAppLauncher.launch(table[ j + 1 ]);
+                                }
+                            }, function (e) {
+                                console.log(e);
+                            });
+                        }
                     }, false );
 					element.style.backgroundColor = 'rgba(0,255,255,' + ( Math.random() * 0.5 + 0.25 ) + ')';
 
-					var title = document.createElement( 'div' );
-					title.className = 'title';
-					title.textContent = table[ i ];
-					element.appendChild( title );
+                    if ( table[ i ] !== "") {
+
+                        var title = document.createElement( 'div' );
+                        title.className = 'title';
+                        title.textContent = table[ i ];
+                        element.appendChild( title );
+
+                        if ( table[ i + 1 ] !== "" ) {
+                            var image = document.createElement( 'img' );
+                            image.src = "images/" + table[ i + 1 ]  + "_preview.png";
+                            image.alt = "Preview";
+                            element.appendChild( image )
+                        }
+                    }
 
 					var object = new THREE.CSS3DObject( element );
 					object.position.x = Math.random() * 4000 - 2000;
@@ -198,8 +221,8 @@
 					objects.push( object );
 
 					//
-                    
-                    const numberProjects = table.length / 2;
+
+                    const numberProjects = table.length / nb_infos;
 
                     const width = 600;
                     const height = 400;
@@ -213,9 +236,8 @@
 					var object = new THREE.Object3D();
                     const columns = 4;
                     const magicCenter = 2.9;
-					object.position.x =  i/2 % columns * interval.x - columns * interval.x / magicCenter;
-					object.position.y = - ( Math.floor(i/2 / columns) * interval.y ) + numberProjects / columns * interval.y / magicCenter;
-                    console.log(object.position);
+					object.position.x =  i/nb_infos % columns * interval.x - columns * interval.x / magicCenter;
+					object.position.y = - ( Math.floor(i/nb_infos / columns) * interval.y ) + numberProjects / columns * interval.y / magicCenter;
 
 					targets.table.push( object );
 

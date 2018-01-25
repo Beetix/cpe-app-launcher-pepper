@@ -1,57 +1,15 @@
 #! /usr/bin/env python
 # -*- encoding: UTF-8 -*-
 
-
+import sys
 import qi
 import argparse
-import sys
 import time
 import signal
 import subprocess
 
-def signal_handler(signal, frame):
-        print('Bye!')
-        sys.exit(0)
-
 def main(session):
-    # Get the service ALTabletService.
-
-    try:
-        tabletService = session.service("ALTabletService")
-
-        tabletService.loadApplication("project_launcher")
-        tabletService.showWebview()
-
-        # Don't forget to disconnect the signal at the end
-        signalID = 0
-
-        app = None;
-
-        def callback(event):
-            global app
-            print "event"
-            if event == "app-launcher":
-                print "app-launcher"
-                if app is not None and app.returncode is None:
-                    app.terminate()
-                    app.wait()
-                    print "Showing webview"
-                    tabletService.loadApplication("project_launcher")
-                    tabletService.showWebview()
-            else:
-                print "Launching ", event
-                app = subprocess.Popen("/home/nao/projects/" + event + "/app.py")
-
-
-        # attach the callback function to onJSEvent signal
-        signalID = tabletService.onJSEvent.connect(callback)
-
-        print("Waiting for Ctrl+C to disconnect")
-        signal.pause()
-
-    except Exception, e:
-        print "Error was: ", e
-
+    session.service("CPEAppLauncher").home()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -68,5 +26,6 @@ if __name__ == "__main__":
         print ("Can't connect to Naoqi at ip \"" + args.ip + "\" on port " + str(args.port) +".\n"
                "Please check your script arguments. Run with -h option for help.")
         sys.exit(1)
+
     main(session)
 
