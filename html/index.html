@@ -96,7 +96,7 @@
 		</style>
 	</head>
 	<body>
-        <script src="/libs/qi/2/qi.js"></script>
+        <script src="/apps/studiotoolkit/robotutils.js"></script>
 		<script src="js/three.min.js"></script>
 		<script src="js/tween.min.js"></script>
 		<script src="js/TrackballControls.js"></script>
@@ -142,23 +142,18 @@
 			var objects = [];
 			var targets = { table: [], sphere: [], helix: [], grid: [] };
 
-			init();
-			animate();
+            say("Bienvenue à CPE, veuillez choisir une application");
 
+            init();
+            animate();
 
-            var say;
-
-            QiSession(function (session) {
-                session.service("ALTextToSpeech").then(function (tts) {
-                    tts.say("Bienvenue à CPE, veuillez choisir une application");
-
-                    say = function (text) {
-                        tts.say(text);
-                    };
+            function say(text) {
+                RobotUtils.onServices(function(ALTextToSpeech) {
+                    ALTextToSpeech.say(text);
+                }, function (e) {
+                    console.log(e);
                 });
-            }, function () {
-                console.log("disconnected");
-            });
+            }
 
 			function init() {
 
